@@ -1,1 +1,1 @@
-easymove.wsgi:application
+gunicorn easymove.wsgi:application

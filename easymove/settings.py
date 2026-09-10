@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-hcgsp_x$@f^4@3-r5n*@!_06q=&=&2v+18xt&5*n5026_g7u(g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'easymove-4bz0.onrender.com', 'localhost', '127.0.0.1',
+]
 
 
 # Application definition

@@ -1,0 +1,1 @@
+easymove.wsgi:application

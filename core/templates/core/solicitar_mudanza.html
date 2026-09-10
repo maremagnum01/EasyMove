@@ -1,0 +1,85 @@
+{% extends 'core/base.html' %} {% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm p-4">
+        <h3 class="mb-4">
+          Solicitar mudanza a <strong>{{ empresa.username }}</strong>
+        </h3>
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="row mb-3">
+            <div class="col-md-8">
+              <label class="form-label fw-bold">Dirección de Origen</label>
+              {{ form.direccion_origen }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Código Postal</label>
+              {{ form.codigo_postal_origen }}
+            </div>
+          </div>
+
+          <!-- BLOQUE DESTINO -->
+          <div class="row mb-3">
+            <div class="col-md-8">
+              <label class="form-label fw-bold">Dirección de Destino</label>
+              {{ form.direccion_destino }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Código Postal</label>
+              {{ form.codigo_postal_destino }}
+            </div>
+          </div>
+
+          <!-- NUEVO: Campo de fecha -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Fecha de la Mudanza</label>
+            {{ form.fecha_mudanza }}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold">Tamaño de la Mudanza</label>
+            {{ form.tamano }}
+            <div class="form-text">
+              Esto ayudará a la empresa a saber qué vehículo enviar.
+            </div>
+          </div>
+
+          {% if empresa.ofrece_embalaje_seguro %}
+          <div class="card border-info bg-light my-4 p-3 shadow-sm">
+            <div class="form-check form-switch fs-5">
+              {{ form.solicita_servicio_premium }}
+              <label
+                class="form-check-label fw-bold text-info-emphasis"
+                for="switchPremium"
+              >
+                ⭐ Solicitar Servicio Premium / Extras
+              </label>
+            </div>
+            {% if empresa.descripcion_servicio_premium %}
+            <p class="text-muted small mt-2 mb-0">
+              <strong>Incluye:</strong> {{ empresa.descripcion_servicio_premium
+              }}
+            </p>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-success btn-lg">
+              Confirmar Solicitud
+            </button>
+            <a
+              href="{% url 'perfil_empresa' empresa.id %}"
+              class="btn btn-outline-secondary"
+              >Cancelar</a
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

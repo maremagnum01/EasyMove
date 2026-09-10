@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EasyMove - Mudanzas simples</title>
+    <!-- Importamos Bootstrap para que se vea bien rápido -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">🚚 EasyMove</a>
+
+        <!-- Botón para celulares CORREGIDO -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <!-- SI EL USUARIO ESTÁ LOGUEADO -->
+            {% if user.is_authenticated %}
+
+            <!-- Menú para EMPRESAS -->
+            {% if user.rol == 'EMPRESA' %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'panel_empresa' %}"
+                >Mi Panel de Trabajo</a
+              >
+            </li>
+
+            <!-- Menú para CLIENTES -->
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'buscador_empresas' %}"
+                >Buscar Empresas</a
+              >
+            </li>
+            <!-- NUEVO BOTÓN PARA EL CLIENTE -->
+            <li class="nav-item">
+              <a
+                class="nav-link fw-bold text-info"
+                href="{% url 'panel_cliente' %}"
+                >📦 Mis Mudanzas</a
+              >
+            </li>
+            {% endif %}
+
+            <li class="nav-item">
+              <span class="nav-link text-light border-start ms-2 ps-3"
+                >Hola, {{ user.username }}</span
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-danger fw-bold" href="{% url 'logout' %}"
+                >Cerrar Sesión</a
+              >
+            </li>
+
+            <!-- SI EL USUARIO ES UN INVITADO -->
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link btn btn-primary text-white ms-2 px-3"
+                href="{% url 'registro_cliente' %}"
+                >Registrarse</a
+              >
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Aquí se inyectará el contenido de las otras páginas -->
+    {% block content %} {% endblock %}
+
+    <!-- Script de Bootstrap (Opcional, pero necesario si quieres que el menú de celulares se despliegue al hacer clic) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

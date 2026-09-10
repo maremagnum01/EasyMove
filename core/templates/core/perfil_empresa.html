@@ -1,0 +1,132 @@
+{% extends 'core/base.html' %} {% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <!-- Columna Izquierda: Info de la Empresa -->
+    <div class="col-md-8">
+      <h2 class="display-5 text-capitalize">
+        Transportes {{ empresa.username }}
+      </h2>
+
+      <div class="mb-4">
+        {% if promedio > 0 %}
+        <h4 class="text-warning mb-0 fw-bold">
+          ⭐ {{ promedio }}
+          <span class="text-muted fs-6 fw-normal"
+            >({{ resenas.count }} reseñas)</span
+          >
+        </h4>
+        {% else %}
+        <span class="badge bg-secondary">Aún no tiene reseñas</span>
+        {% endif %}
+      </div>
+
+      <!-- AQUÍ EMPIEZA LO NUEVO: La tarjeta con info realista de la empresa -->
+      <div class="card mb-4 shadow-sm border-0 bg-light mt-3">
+        <div class="card-body">
+          <h5 class="mb-3">Información de la Empresa</h5>
+          <ul class="list-unstyled mb-0">
+            <li class="mb-2">
+              <strong>📍 Base de operaciones:</strong> {{
+              empresa.direccion_base|default:"No especificada" }}
+            </li>
+            <li class="mb-2">
+              <strong>🗺️ Cobertura:</strong> {{
+              empresa.get_zona_cobertura_display }}
+            </li>
+            <li class="mb-2">
+              <strong>🚚 Vehículo principal:</strong> {{
+              empresa.get_vehiculo_principal_display|default:"No especificado"
+              }}
+            </li>
+            <li class="mb-2">
+              <strong>📝 CUIT:</strong> {{ empresa.cuit|default:"No verificado"
+              }}
+            </li>
+
+            {% if empresa.tiene_seguro %}
+            <li class="text-success fw-bold mt-2">
+              ✓ Cuenta con Seguro de Carga
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+      <!-- AQUÍ TERMINA LO NUEVO -->
+
+      {% if empresa.ofrece_embalaje_seguro %}
+      <div class="card border-success mb-4 shadow-sm">
+        <div class="card-header bg-success text-white fw-bold">
+          🛡️ Servicio Premium / Extras
+        </div>
+        <div class="card-body">
+          <!-- Mostramos lo que la empresa escribió, respetando los saltos de línea con linebreaks -->
+          <p class="mb-0">
+            {{ empresa.descripcion_servicio_premium|linebreaks }}
+          </p>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="card shadow-sm border-0 mt-5 mb-5">
+        <div class="card-header bg-white border-bottom pt-4 pb-3">
+          <h4 class="fw-bold text-primary mb-0">💬 Opiniones de clientes</h4>
+        </div>
+        <div class="card-body bg-light">
+          {% for resena in resenas %}
+          <div class="card mb-3 border-0 shadow-sm">
+            <div class="card-body">
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <h6 class="fw-bold mb-0 text-dark">
+                  👤 {{ resena.cliente.username }}
+                </h6>
+                <small class="text-muted"
+                  >{{ resena.fecha_creacion|date:"d M Y" }}</small
+                >
+              </div>
+
+              <div class="text-warning mb-2 fs-6">
+                <!-- Lógica simple para imprimir estrellas según el número -->
+                <!-- prettier-ignore -->
+                {% if resena.calificacion == 5 %}⭐⭐⭐⭐⭐{% endif %} 
+                {% if resena.calificacion == 4 %}⭐⭐⭐⭐{% endif %} 
+                {% if resena.calificacion == 3 %}⭐⭐⭐{% endif %} 
+                {% if resena.calificacion == 2 %}⭐⭐{% endif %} 
+                {% if resena.calificacion == 1 %}⭐{% endif %}
+              </div>
+
+              {% if resena.comentario %}
+              <p class="mb-0 text-secondary" style="font-style: italic">
+                "{{ resena.comentario }}"
+              </p>
+              {% endif %}
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-muted text-center my-4">
+            Nadie ha comentado todavía. ¡Sé el primero en solicitar un viaje y
+            dejar tu opinión!
+          </p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Columna Derecha: Acción -->
+    <div class="col-md-4">
+      <div class="card shadow-sm sticky-top" style="top: 20px">
+        <div class="card-body text-center">
+          <h4 class="card-title mb-4">¿Te convence?</h4>
+          <a
+            href="{% url 'solicitar_mudanza' empresa.id %}"
+            class="btn btn-primary btn-lg w-100"
+            >Solicitar Mudanza</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

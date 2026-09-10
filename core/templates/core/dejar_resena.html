@@ -1,0 +1,57 @@
+{% extends 'core/base.html' %} {% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-lg border-0 rounded-4">
+        <div
+          class="card-header bg-dark text-white text-center py-4 rounded-top-4"
+        >
+          <h3 class="mb-0 fw-bold">⭐ Calificar Servicio</h3>
+          <p class="mb-0 text-white-50">
+            Transportes {{ mudanza.empresa.username }}
+          </p>
+        </div>
+        <div class="card-body p-4 bg-light">
+          <div class="text-center mb-4">
+            <p class="text-muted small mb-1">Ruta del viaje:</p>
+            <p class="fw-bold">
+              {{ mudanza.direccion_origen }} <br />
+              ⬇️ <br />
+              {{ mudanza.direccion_destino }}
+            </p>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+              <label class="form-label fw-bold"
+                >¿Cuántas estrellas le das a la empresa?</label
+              >
+              {{ form.calificacion }}
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold">Comentario (Opcional)</label>
+              {{ form.comentario }}
+            </div>
+
+            <div class="d-grid gap-2">
+              <button
+                type="submit"
+                class="btn btn-warning btn-lg fw-bold text-dark shadow-sm"
+              >
+                Enviar Calificación
+              </button>
+              <a
+                href="{% url 'panel_cliente' %}"
+                class="btn btn-outline-secondary"
+                >Cancelar</a
+              >
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'core/base.html' %} {% block content %}
+<div class="container text-center mt-5">
+  <h1 class="display-4 fw-bold">Bienvenido a EasyMove</h1>
+  <p class="lead text-muted mt-3">
+    Explora nuestros servicios libremente. Conectamos a personas que necesitan
+    mudarse con transportistas de confianza.
+  </p>
+
+  <div class="row justify-content-center mt-5">
+    <div class="col-md-5 mb-4">
+      <div class="card shadow-sm h-100 p-4">
+        <h3>¿Necesitas un flete?</h3>
+        <p>Cotiza tu viaje y encuentra transporte en minutos.</p>
+        <!-- Más adelante este botón llevará al registro de cliente -->
+        <a
+          href="{% url 'registro_cliente' %}"
+          class="btn btn-primary btn-lg mt-auto"
+          >Me quiero mudar</a
+        >
+      </div>
+    </div>
+
+    <div class="col-md-5 mb-4">
+      <div class="card shadow-sm h-100 p-4">
+        <h3>¿Tienes una camioneta?</h3>
+        <p>Únete a nuestra flota y empieza a aceptar viajes hoy mismo.</p>
+        <!-- Más adelante este botón llevará al registro de empresa -->
+        <a
+          href="{% url 'registro_empresa' %}"
+          class="btn btn-outline-dark btn-lg mt-auto"
+          >Realizo mudanzas</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

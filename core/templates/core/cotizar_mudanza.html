@@ -1,0 +1,232 @@
+{% extends 'core/base.html' %} {% block content %}
+<div class="container mt-4 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="card shadow border-0 rounded-3">
+        <!-- ENCABEZADO -->
+        <div class="card-header bg-primary text-white text-center py-3">
+          <h3 class="mb-0 fw-bold">📝 Generar Presupuesto</h3>
+        </div>
+
+        <div class="card-body p-4">
+          <!-- RESUMEN DEL PEDIDO Y MAPA -->
+          <div class="row mb-4">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <h5 class="fw-bold text-secondary border-bottom pb-2">
+                Detalles de la Solicitud
+              </h5>
+              <p class="mb-1 mt-3">
+                <strong>👤 Cliente:</strong> {{ mudanza.cliente.username }}
+              </p>
+              <p class="mb-1">
+                <strong>📍 Origen:</strong> {{ mudanza.direccion_origen }}
+              </p>
+              <p class="mb-1">
+                <strong>🏁 Destino:</strong> {{ mudanza.direccion_destino }}
+              </p>
+
+              <!-- prettier-ignore -->
+              <p class="mb-1">
+                        <strong>📦 Volumen:</strong> {{ mudanza.get_tamano_display }} 
+                        {% if mudanza.solicita_servicio_premium %}
+                            <span class="badge bg-info text-dark ms-1">⭐ Premium</span>
+                        {% endif %}
+                    </p>
+
+              <p class="mb-0">
+                <strong>📅 Fecha ideal solicitada:</strong> {{
+                mudanza.fecha_mudanza|date:"d/m/Y" }}
+              </p>
+            </div>
+
+            <div class="col-md-6">
+              <!-- EL MAPA INTEGRADO -->
+              <div
+                style="
+                  border-radius: 8px;
+                  overflow: hidden;
+                  border: 1px solid #dee2e6;
+                  height: 100%;
+                  min-height: 200px;
+                "
+              >
+                <iframe
+                  width="100%"
+                  height="100%"
+                  style="border: 0; min-height: 200px"
+                  frameborder="0"
+                  src="https://www.google.com/maps/embed/v1/directions?key=AIzaSyD064X0eNh9iXASvTUZEjHgPtXTIchXw_k&origin={{ mudanza.direccion_origen|urlencode }}&destination={{ mudanza.direccion_destino|urlencode }}&mode=driving&region=AR"
+                  allowfullscreen
+                >
+                </iframe>
+              </div>
+            </div>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-none">{{ form.tipo_viaje }}</div>
+            <!-- Oculto para que no moleste visualmente -->
+
+            <!-- SECCIÓN 1: DISTANCIA Y FECHA -->
+            <div class="card bg-light border-0 mb-4">
+              <div class="card-body">
+                <h6 class="fw-bold text-primary mb-3">
+                  1. Confirmar Distancia y Fecha
+                </h6>
+                <div class="row">
+                  <div class="col-md-6 mb-3 mb-md-0">
+                    <label class="form-label small fw-bold text-muted"
+                      >Distancia de la ruta (Auto-calculada)</label
+                    >
+                    <div class="input-group">
+                      {{ form.distancia_km }}
+                      <span class="input-group-text">km</span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small fw-bold"
+                      >📅 Fecha Propuesta al Cliente</label
+                    >
+                    <!-- prettier-ignore -->
+                    {{ form.fecha_propuesta }} 
+                    {% if form.fecha_propuesta.errors %}
+                    <div class="text-danger small mt-1 fw-bold">
+                      {{ form.fecha_propuesta.errors|striptags }}
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECCIÓN 2: DESGLOSE DE COSTOS -->
+            <div class="card border-primary mb-4">
+              <div
+                class="card-header bg-white fw-bold text-primary border-bottom-0 pt-3 pb-0"
+              >
+                2. Desglose de Costos (Modificables)
+              </div>
+              <div class="card-body">
+                <div class="row mb-3">
+                  <div class="col-md-4 mb-3 mb-md-0">
+                    <label class="form-label small fw-bold text-muted"
+                      >Flete / Transporte</label
+                    >
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      {{ form.costo_distancia }}
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-3 mb-md-0">
+                    <label class="form-label small fw-bold text-muted"
+                      >Mano de Obra (Peones)</label
+                    >
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      {{ form.costo_operarios }}
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted"
+                      >Embalaje / Premium</label
+                    >
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      {{ form.costo_premium }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- CARGOS EXTRA DESTACADOS -->
+                <div
+                  class="row bg-warning p-3 rounded mt-3"
+                  style="--bs-bg-opacity: 0.15"
+                >
+                  <div class="col-md-4 mb-3 mb-md-0">
+                    <label
+                      class="form-label small fw-bold text-warning-emphasis"
+                      >Cargos Extra (Escaleras, Peajes)</label
+                    >
+                    <div class="input-group">
+                      <span
+                        class="input-group-text bg-warning border-warning fw-bold text-dark"
+                        >$</span
+                      >
+                      {{ form.cargos_extra }}
+                    </div>
+                  </div>
+                  <div class="col-md-8">
+                    <label
+                      class="form-label small fw-bold text-warning-emphasis"
+                      >Detalle del cargo extra</label
+                    >
+                    {{ form.detalle_cargos_extra }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECCIÓN 3: TOTAL -->
+            <div
+              class="alert alert-success d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 shadow-sm border-success"
+            >
+              <div class="mb-3 mb-md-0 text-center text-md-start">
+                <h4 class="text-success mb-0 fw-bold">PRECIO TOTAL</h4>
+                <small class="text-success-emphasis"
+                  >Este es el monto final de la cotización</small
+                >
+              </div>
+              <div class="input-group" style="max-width: 250px">
+                <span
+                  class="input-group-text bg-success text-white fw-bold fs-5"
+                  >$</span
+                >
+                {{ form.precio }}
+              </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="d-flex justify-content-end gap-3 mt-4">
+              <a
+                href="{% url 'panel_empresa' %}"
+                class="btn btn-outline-secondary fw-bold px-4"
+                >Cancelar</a
+              >
+              <button
+                type="submit"
+                class="btn btn-primary fw-bold px-5 shadow-sm"
+              >
+                Enviar Cotización
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPT PARA CALCULAR EL TOTAL EN TIEMPO REAL -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const inputsCostos = document.querySelectorAll(".input-costo");
+    const inputTotal = document.getElementById("precioTotal");
+
+    function calcularTotal() {
+      let total = 0;
+      inputsCostos.forEach((input) => {
+        let valor = parseFloat(input.value);
+        if (!isNaN(valor)) {
+          total += valor;
+        }
+      });
+      inputTotal.value = total.toFixed(2);
+    }
+
+    inputsCostos.forEach((input) => {
+      input.addEventListener("input", calcularTotal);
+    });
+  });
+</script>
+{% endblock %}

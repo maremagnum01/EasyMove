@@ -1,0 +1,304 @@
+{% extends 'core/base.html' %} {% block content %}
+<div class="container mt-5 mb-5">
+  <h2 class="mb-4">📦 Mis Mudanzas</h2>
+
+  <div class="row">
+    <!-- COLUMNA 1: SOLICITUDES PENDIENTES Y COTIZADAS -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm border-warning h-100">
+        <div class="card-header bg-warning text-dark fw-bold">
+          ⏳ Esperando confirmación
+        </div>
+        <div class="card-body bg-light">
+          {% for mudanza in pendientes %}
+          <div class="card mb-3 border-0 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title text-primary">
+                Empresa: Transportes {{ mudanza.empresa.username }}
+              </h5>
+
+              <p class="mb-2">
+                <strong>📅 Fecha solicitada:</strong> {{
+                mudanza.fecha_mudanza|date:"d/m/Y" }}
+              </p>
+
+              <p class="mb-1 small">
+                <strong>📍 Origen:</strong> {{ mudanza.direccion_origen }}
+                <span class="badge bg-secondary"
+                  >CP: {{ mudanza.codigo_postal_origen }}</span
+                >
+              </p>
+              <p class="mb-2 small">
+                <strong>🏁 Destino:</strong> {{ mudanza.direccion_destino }}
+                <span class="badge bg-secondary"
+                  >CP: {{ mudanza.codigo_postal_destino }}</span
+                >
+              </p>
+
+              <!-- prettier-ignore -->
+              {% if mudanza.solicita_servicio_premium %}
+              <span class="badge bg-info text-dark mb-2"
+                >⭐ Con Servicio Premium</span
+              >
+              {% endif %}
+
+              <div
+                class="mt-3 mb-2"
+                style="
+                  border-radius: 8px;
+                  overflow: hidden;
+                  border: 1px solid #dee2e6;
+                "
+              >
+                <iframe
+                  width="100%"
+                  height="150"
+                  frameborder="0"
+                  style="border: 0"
+                  src="https://www.google.com/maps/embed/v1/directions?key=AIzaSyD064X0eNh9iXASvTUZEjHgPtXTIchXw_k&origin={{ mudanza.direccion_origen|urlencode }}&destination={{ mudanza.direccion_destino|urlencode }}&mode=driving&region=AR"
+                  allowfullscreen
+                >
+                </iframe>
+              </div>
+
+              <!-- LÓGICA CONDICIONAL: PENDIENTE VS COTIZADA -->
+              {% if mudanza.estado == 'PENDIENTE' %}
+              <div class="alert alert-secondary mt-3 py-2 text-center small">
+                ⏳ La empresa está analizando tu solicitud para enviarte un
+                presupuesto.
+              </div>
+              <p class="text-muted small mb-3 text-center">
+                Solicitado el {{ mudanza.fecha_creacion|date:"d/m/Y" }}
+              </p>
+              <a
+                href="{% url 'cancelar_mudanza' mudanza.id %}"
+                class="btn btn-outline-danger btn-sm w-100 fw-bold"
+                onclick="return confirm('¿Cancelar solicitud?');"
+              >
+                ❌ Cancelar Solicitud
+              </a>
+
+              {% elif mudanza.estado == 'COTIZADA' %}
+              <div class="alert alert-success mt-3 shadow-sm border-success">
+                <h6 class="fw-bold text-success mb-2">
+                  ¡Tenés un presupuesto! 🎉
+                </h6>
+                <p class="mb-2">
+                  <strong>📅 Fecha propuesta:</strong> {{
+                  mudanza.fecha_propuesta|date:"d/m/Y" }}
+                </p>
+
+                <!-- TICKET DE DESGLOSE DE COSTOS -->
+                <div
+                  class="bg-white p-3 rounded border border-success-subtle small mb-3 shadow-sm"
+                >
+                  <p class="mb-2 fw-bold text-muted border-bottom pb-1">
+                    Detalle de la cotización:
+                  </p>
+
+                  <div class="d-flex justify-content-between mb-1">
+                    <span
+                      >Flete Logístico
+                      <span class="text-muted"
+                        >({{ mudanza.distancia_km }} km)</span
+                      >:</span
+                    >
+                    <span>${{ mudanza.costo_distancia }}</span>
+                  </div>
+
+                  <div class="d-flex justify-content-between mb-1">
+                    <span>Mano de obra (Peones):</span>
+                    <span>${{ mudanza.costo_operarios }}</span>
+                  </div>
+
+                  <!-- prettier-ignore -->
+                  {% if mudanza.costo_premium and mudanza.costo_premium > 0 %}
+                  <div
+                    class="d-flex justify-content-between mb-1 text-info-emphasis"
+                  >
+                    <span>Servicio Premium:</span>
+                    <span>${{ mudanza.costo_premium }}</span>
+                  </div>
+                  {% endif %}
+
+                  <!-- prettier-ignore -->
+                  {% if mudanza.cargos_extra and mudanza.cargos_extra > 0 %}
+                  <div
+                    class="d-flex justify-content-between mb-1 text-warning-emphasis"
+                  >
+                    <span>Extras ({{ mudanza.detalle_cargos_extra }}):</span>
+                    <span>${{ mudanza.cargos_extra }}</span>
+                  </div>
+                  {% endif %}
+
+                  <div
+                    class="d-flex justify-content-between mt-2 pt-2 border-top fw-bold fs-6 text-success"
+                  >
+                    <span>TOTAL FINAL:</span>
+                    <span>${{ mudanza.precio }}</span>
+                  </div>
+                </div>
+                <!-- FIN TICKET -->
+
+                <div class="d-flex gap-2 mt-3">
+                  <a
+                    href="{% url 'aceptar_cotizacion' mudanza.id %}"
+                    class="btn btn-success w-50 fw-bold shadow-sm"
+                    >✓ Aceptar</a
+                  >
+                  <a
+                    href="{% url 'cancelar_mudanza' mudanza.id %}"
+                    class="btn btn-outline-danger w-50 fw-bold bg-white"
+                    onclick="return confirm('¿Rechazar este presupuesto?');"
+                    >❌ Rechazar</a
+                  >
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-muted text-center my-4">
+            No tienes pedidos pendientes.
+          </p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUMNA 2: MUDANZAS CONFIRMADAS (EN CURSO) -->
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm border-success h-100">
+        <div class="card-header bg-success text-white fw-bold">
+          ✅ Viajes Confirmados
+        </div>
+        <div class="card-body">
+          {% for mudanza in asignadas %}
+          <div class="card mb-3 shadow-sm border-success">
+            <div class="card-body">
+              <span class="badge bg-success float-end">¡Aceptado!</span>
+              <h5 class="card-title">
+                Transportes {{ mudanza.empresa.username }}
+              </h5>
+
+              <p class="mb-1">
+                <strong>📅 Día del viaje:</strong> {{
+                mudanza.fecha_mudanza|date:"d/m/Y" }}
+              </p>
+              <p class="mb-1 small">
+                <strong>De:</strong> {{ mudanza.direccion_origen }}
+              </p>
+              <p class="mb-2 small">
+                <strong>A:</strong> {{ mudanza.direccion_destino }}
+              </p>
+
+              <!-- prettier-ignore -->
+              {% if mudanza.solicita_servicio_premium %}
+              <span class="badge bg-info text-dark mb-2"
+                >⭐ Con Servicio Premium</span
+              >
+              {% endif %}
+
+              <div
+                class="mt-3 mb-2"
+                style="
+                  border-radius: 8px;
+                  overflow: hidden;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <iframe
+                  width="100%"
+                  height="200"
+                  frameborder="0"
+                  style="border: 0"
+                  src="https://www.google.com/maps/embed/v1/directions?key=AIzaSyD064X0eNh9iXASvTUZEjHgPtXTIchXw_k&origin={{ mudanza.direccion_origen|urlencode }}&destination={{ mudanza.direccion_destino|urlencode }}&mode=driving&region=AR"
+                  allowfullscreen
+                >
+                </iframe>
+              </div>
+
+              <hr />
+              <div class="text-center mt-2">
+                <p class="small text-muted mb-1">
+                  ¿Necesitás contactar a la empresa?
+                </p>
+                <a
+                  href="mailto:{{ mudanza.empresa.email }}"
+                  class="btn btn-outline-primary btn-sm"
+                  >✉️ Enviar un correo</a
+                >
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-muted text-center my-4">
+            No tienes viajes confirmados aún.
+          </p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- NUEVA FILA: HISTORIAL DE VIAJES -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-secondary">
+        <div class="card-header bg-secondary text-white fw-bold">
+          🕰️ Historial de Mudanzas Finalizadas
+        </div>
+        <div class="card-body bg-light">
+          {% if finalizadas %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle bg-white border">
+              <thead class="table-light">
+                <tr>
+                  <th>Fecha</th>
+                  <th>Empresa</th>
+                  <th>Ruta</th>
+                  <th>Costo Total</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for viaje in finalizadas %}
+                <tr>
+                  <td>{{ viaje.fecha_mudanza|date:"d/m/Y" }}</td>
+                  <td><strong>{{ viaje.empresa.username }}</strong></td>
+                  <td>
+                    <small
+                      >{{ viaje.direccion_origen }} ➔ {{ viaje.direccion_destino
+                      }}</small
+                    >
+                  </td>
+                  <td class="text-success fw-bold">${{ viaje.precio }}</td>
+                  <td>
+                    <!-- Si la mudanza NO tiene reseña, mostramos el botón amarillo -->
+                    {% if not viaje.tiene_resena %}
+                    <a
+                      href="{% url 'dejar_resena' viaje.id %}"
+                      class="btn btn-warning btn-sm fw-bold shadow-sm"
+                    >
+                      ⭐ Dejar Reseña
+                    </a>
+                    <!-- Si ya tiene, mostramos un badge -->
+                    {% else %}
+                    <span class="badge bg-success"> ✓ Calificado </span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="text-muted text-center my-3">
+            Aún no tienes mudanzas finalizadas.
+          </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

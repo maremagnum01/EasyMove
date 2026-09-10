@@ -1,0 +1,130 @@
+{% extends 'core/base.html' %} 
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <h2 class="mb-4">Empresas Destacadas</h2>
+  <p class="text-muted">
+    Selecciona a los transportistas con mejor reputación para tu mudanza.
+  </p>
+
+  <!-- CAJA DEL BUSCADOR Y FILTROS -->
+  <div class="card shadow-sm border-0 mb-5 bg-light">
+    <div class="card-body p-4">
+      <form method="GET" action="">
+        <div class="row g-2 align-items-end">
+          
+          <!-- Búsqueda por Nombre -->
+          <div class="col-lg-3 col-md-6">
+            <label class="form-label small fw-bold text-muted">Nombre</label>
+            <input type="text" name="q" class="form-control" placeholder="Ej: Juan..." value="{{ request.GET.q }}">
+          </div>
+
+          <!-- Filtro por Alcance (Zonas) -->
+          <div class="col-lg-3 col-md-6">
+            <label class="form-label small fw-bold text-muted">Zona de cobertura</label>
+            <select name="alcance" class="form-select">
+              <option value="">Cualquier destino</option>
+              <option value="caba" {% if request.GET.alcance == 'caba' %}selected{% endif %}>Viajes dentro de CABA</option>
+              <option value="amba" {% if request.GET.alcance == 'amba' %}selected{% endif %}>Viajes a/desde AMBA</option>
+              <option value="resto_pba" {% if request.GET.alcance == 'resto_pba' %}selected{% endif %}>Resto de Bs. As. (La Plata, Costa)</option>
+              <option value="interior" {% if request.GET.alcance == 'interior' %}selected{% endif %}>Interior del País</option>
+            </select>
+          </div>
+          
+          <!-- Filtro por Estrellas -->
+          <div class="col-lg-2 col-md-4">
+            <label class="form-label small fw-bold text-muted">Reputación</label>
+            <select name="estrellas" class="form-select">
+              <option value="">Todas</option>
+              <option value="4" {% if request.GET.estrellas == '4' %}selected{% endif %}>⭐⭐⭐⭐ o +</option>
+              <option value="3" {% if request.GET.estrellas == '3' %}selected{% endif %}>⭐⭐⭐ o +</option>
+            </select>
+          </div>
+          
+          <!-- Filtro Premium -->
+          <div class="col-lg-2 col-md-4">
+            <div class="form-check form-switch mt-2 border p-2 rounded bg-white" style="height: 38px;">
+              <input class="form-check-input ms-1" type="checkbox" role="switch" name="premium" id="filtroPremium" {% if request.GET.premium == 'on' %}checked{% endif %}>
+              <label class="form-check-label ms-2 small fw-bold" for="filtroPremium">Premium</label>
+            </div>
+          </div>
+          
+          <!-- Botones de Acción -->
+          <div class="col-lg-2 col-md-4 d-flex gap-1">
+            <button type="submit" class="btn btn-primary w-100 fw-bold">Buscar</button>
+            <a href="{% url 'buscador_empresas' %}" class="btn btn-outline-secondary">Limpiar</a>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- FIN CAJA DEL BUSCADOR -->
+
+  <!-- GRILLA DE EMPRESAS -->
+  <div class="row">
+    {% for empresa in empresas %}
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm h-100 border-0">
+        <div class="card-body">
+          <h5 class="card-title text-capitalize text-primary">
+            Transportes {{ empresa.username }}
+          </h5>
+          <h6 class="card-subtitle mb-2 text-warning fw-bold">
+            ⭐ {{ empresa.reputacion }} / 5.0
+          </h6>
+          
+          <!-- Mostrar si tiene servicio premium -->
+          {% if empresa.ofrece_embalaje_seguro %}
+            <span class="badge bg-info text-dark mt-1">⭐ Ofrece Premium</span>
+          {% endif %}
+
+          <!-- NUEVO: LEYENDA DE ZONAS DE COBERTURA -->
+          <div class="mt-3 bg-light p-2 rounded border border-light">
+            <small class="text-muted fw-bold d-block mb-1">📍 Zonas de cobertura:</small>
+            <div class="d-flex flex-wrap gap-1">
+                {% if empresa.cubre_caba %}
+                    <span class="badge bg-secondary text-white">CABA</span>
+                {% endif %}
+                
+                {% if empresa.cubre_amba %}
+                    <span class="badge bg-secondary text-white">AMBA</span>
+                {% endif %}
+                
+                {% if empresa.cubre_resto_pba %}
+                    <span class="badge bg-secondary text-white">Resto PBA</span>
+                {% endif %}
+                
+                {% if empresa.cubre_interior %}
+                    <span class="badge bg-dark text-white">Interior País</span>
+                {% endif %}
+            </div>
+          </div>
+          <!-- FIN LEYENDA ZONAS -->
+
+          <p class="card-text mt-3 text-secondary">
+            Especialistas en traslados seguros y rápidos.
+          </p>
+
+          <!-- Botón para solicitar -->
+          <a
+            href="{% url 'perfil_empresa' empresa.id %}"
+            class="btn btn-outline-primary w-100 mt-2 fw-bold"
+            >Ver Perfil y Servicios</a
+          >
+        </div>
+      </div>
+    </div>
+    
+    {% empty %}
+    <!-- Mensaje si la búsqueda no arroja resultados -->
+    <div class="col-12">
+      <div class="alert alert-info text-center py-4 shadow-sm border-0">
+        <h5 class="mb-0">No se encontraron empresas con esos filtros 🕵️‍♂️</h5>
+        <p class="text-muted mt-2 mb-0">Intentá buscar con otros términos o quitá el filtro Premium.</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
